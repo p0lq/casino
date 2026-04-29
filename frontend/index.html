@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>COFFESINO — Кофейня в Астане</title>
+  <meta name="description" content="COFFESINO — уютная кофейня в Астане. Онлайн бронирование столиков, меню, доставка.">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>">
+</head>
+<body>
+
+<!-- ─── Navbar ─────────────────────────────────────────────── -->
+<nav class="navbar">
+  <a class="nav-logo" href="#home">COFFE<span>SINO</span></a>
+  <ul class="nav-links">
+    <li><a href="#home"    data-i18n="nav_home">Главная</a></li>
+    <li><a href="#menu"    data-i18n="nav_menu">Меню</a></li>
+    <li><a href="#booking" data-i18n="nav_booking">Бронирование</a></li>
+    <li><a href="#reviews" data-i18n="nav_reviews">Отзывы</a></li>
+    <li><a href="#contact" data-i18n="nav_contact">Контакты</a></li>
+  </ul>
+  <div class="nav-right">
+    <div class="lang-switcher">
+      <button class="lang-btn" data-lang="ru">RU</button>
+      <button class="lang-btn" data-lang="kz">ҚЗ</button>
+      <button class="lang-btn" data-lang="en">EN</button>
+    </div>
+    <div id="authBtns">
+      <button class="btn btn-outline btn-sm" onclick="openModal('loginModal')" data-i18n="auth_login">Войти</button>
+      <button class="btn btn-primary btn-sm" onclick="openModal('registerModal')" data-i18n="auth_register">Регистрация</button>
+    </div>
+    <div id="userMenu" style="display:none">
+      <span id="userName"></span>
+      <button class="btn btn-sm btn-outline" onclick="openMyBookings()" data-i18n="auth_my_bookings">Мои брони</button>
+      <a id="adminLink" href="admin.html" class="admin-link" style="display:none">⚙ Админ</a>
+      <button class="btn btn-sm" style="background:transparent;color:var(--muted)" onclick="logout()" data-i18n="auth_logout">Выйти</button>
+    </div>
+    <button class="burger" onclick="document.querySelector('.nav-links').classList.toggle('mobile-open')" aria-label="menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ─── Hero ───────────────────────────────────────────────── -->
+<section id="home" class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-badge">☕ Astana, Kazakhstan</div>
+    <h1>COFFESINO</h1>
+    <p class="hero-sub" data-i18n="hero_subtitle">Где каждая чашка рассказывает историю</p>
+    <div class="hero-btns">
+      <button class="btn btn-secondary" onclick="document.getElementById('booking').scrollIntoView({behavior:'smooth'})" data-i18n="hero_btn_book">Забронировать столик</button>
+      <button class="btn btn-outline" style="color:#fff;border-color:rgba(255,255,255,.5)" onclick="document.getElementById('menu').scrollIntoView({behavior:'smooth'})" data-i18n="hero_btn_menu">Наше меню</button>
+    </div>
+  </div>
+  <div class="hero-scroll">scroll</div>
+</section>
+
+<!-- ─── Menu ───────────────────────────────────────────────── -->
+<section id="menu">
+  <div class="section-header">
+    <h2 data-i18n="menu_title">Наше Меню</h2>
+    <p data-i18n="menu_subtitle">Приготовлено с любовью, подано с душой</p>
+  </div>
+  <div class="cat-filters">
+    <button class="cat-btn active" data-cat="all" data-i18n="cat_all">Всё</button>
+    <button class="cat-btn" data-cat="coffee" data-i18n="cat_coffee">Кофе</button>
+    <button class="cat-btn" data-cat="tea" data-i18n="cat_tea">Чай</button>
+    <button class="cat-btn" data-cat="food" data-i18n="cat_food">Еда</button>
+    <button class="cat-btn" data-cat="dessert" data-i18n="cat_dessert">Десерты</button>
+    <button class="cat-btn" data-cat="drinks" data-i18n="cat_drinks">Напитки</button>
+  </div>
+  <div class="menu-grid" id="menuGrid">
+    <div class="loading-spinner"></div>
+  </div>
+</section>
+
+<!-- ─── Booking ────────────────────────────────────────────── -->
+<section id="booking" class="section-alt">
+  <div class="section-header">
+    <h2 data-i18n="booking_title">Забронировать Столик</h2>
+    <p data-i18n="booking_subtitle">Зарезервируйте свой идеальный момент</p>
+  </div>
+  <div class="booking-layout">
+    <!-- Left: form + tables -->
+    <div class="booking-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label data-i18n="booking_date">Дата</label>
+          <input type="date" id="bookingDate" onchange="loadTables()">
+        </div>
+        <div class="form-group">
+          <label data-i18n="booking_time">Время</label>
+          <select id="bookingTime" onchange="loadTables()">
+            <option value="">— выберите —</option>
+            <option>08:00</option><option>09:00</option><option>10:00</option>
+            <option>11:00</option><option>12:00</option><option>13:00</option>
+            <option>14:00</option><option>15:00</option><option>16:00</option>
+            <option>17:00</option><option>18:00</option><option>19:00</option>
+            <option>20:00</option><option>21:00</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label data-i18n="booking_guests">Кол-во гостей</label>
+          <input type="number" id="bookingGuests" value="2" min="1" max="20">
+        </div>
+        <div class="form-group">
+          <label data-i18n="booking_duration">Длительность</label>
+          <select id="bookingDuration">
+            <option value="1">1 ч</option>
+            <option value="2" selected>2 ч</option>
+            <option value="3">3 ч</option>
+            <option value="4">4 ч</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="tables-section">
+        <h3 data-i18n="booking_select_table">Выбрать столик</h3>
+        <div class="tables-grid" id="tablesGrid">
+          <p class="empty-msg" style="grid-column:1/-1">Выберите дату и время для просмотра столиков</p>
+        </div>
+        <div id="selectedTableInfo">
+          ✓ Выбран: <span id="selectedTableName"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: order -->
+    <div class="order-sidebar">
+      <div class="order-card">
+        <h3 data-i18n="booking_cart_title">Ваш заказ</h3>
+        <div id="cartItems">
+          <p class="cart-empty" data-i18n="booking_cart_empty">Пока ничего не добавлено</p>
+        </div>
+        <div class="cart-total">
+          <span data-i18n="booking_total">Итого</span>
+          <span class="cart-total-amount" id="cartTotal">0 ₸</span>
+        </div>
+        <div class="discount-input">
+          <input type="text" id="discountCode" data-i18n-placeholder="discount_placeholder" placeholder="Промокод (необязательно)">
+        </div>
+        <div class="booking-actions">
+          <button class="btn btn-primary" onclick="createBooking()" data-i18n="booking_pay">Перейти к оплате</button>
+        </div>
+      </div>
+
+      <!-- Add to order from menu -->
+      <div class="order-card" style="margin-top:20px">
+        <h3 data-i18n="booking_order_title">Добавить к заказу</h3>
+        <p style="font-size:.85rem;color:var(--muted);margin-bottom:16px">Прокрутите вверх к меню и нажмите «Добавить в заказ»</p>
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('menu').scrollIntoView({behavior:'smooth'})">↑ К меню</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Reviews ────────────────────────────────────────────── -->
+<section id="reviews">
+  <div class="section-header">
+    <h2 data-i18n="reviews_title">Отзывы Наших Гостей</h2>
+  </div>
+  <div class="reviews-layout">
+    <div class="reviews-list" id="reviewsList">
+      <div class="loading-spinner"></div>
+    </div>
+    <div class="write-review-card">
+      <h3 data-i18n="reviews_write">Написать отзыв</h3>
+      <form id="reviewForm">
+        <p style="font-size:.85rem;color:var(--muted);margin-bottom:8px" data-i18n="reviews_rating">Оценка</p>
+        <div class="stars-input">
+          <button type="button" class="star-btn" data-rating="1">★</button>
+          <button type="button" class="star-btn" data-rating="2">★</button>
+          <button type="button" class="star-btn" data-rating="3">★</button>
+          <button type="button" class="star-btn" data-rating="4">★</button>
+          <button type="button" class="star-btn" data-rating="5">★</button>
+        </div>
+        <textarea id="reviewText" class="review-textarea" data-i18n="reviews_text" placeholder="Ваш отзыв" rows="4"></textarea>
+        <button type="submit" class="btn btn-primary" style="width:100%;margin-top:12px" data-i18n="reviews_submit">Отправить</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Contact ────────────────────────────────────────────── -->
+<section id="contact" class="section-alt">
+  <div class="section-header">
+    <h2 data-i18n="contact_title">Найдите Нас</h2>
+  </div>
+  <div class="contact-layout">
+    <div class="contact-info">
+      <div class="contact-item">
+        <div class="contact-icon">📍</div>
+        <div>
+          <h4 data-i18n="contact_address_label">Адрес</h4>
+          <p data-i18n="contact_address">г. Астана, Казахстан (адрес уточняется)</p>
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon">📞</div>
+        <div>
+          <h4 data-i18n="contact_phone">Телефон / WhatsApp</h4>
+          <p>
+            <a href="tel:+77787286567">+7 778 728 65 67</a><br>
+            <a href="https://wa.me/77787286567" target="_blank" rel="noopener">💬 Написать в WhatsApp</a>
+          </p>
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon">🕐</div>
+        <div>
+          <h4 data-i18n="contact_hours">Режим работы</h4>
+          <p data-i18n="contact_hours_val">Пн–Вс: 08:00 – 22:00</p>
+        </div>
+      </div>
+    </div>
+    <div class="contact-map">
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d185006.0!2d71.3!3d51.18!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x424585a023ee7c0f%3A0xab5e52e788fa2c0a!2z0JDRgdGC0LDQvdCw!5e0!3m2!1sru!2skz!4v1"
+        allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+      </iframe>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Footer ─────────────────────────────────────────────── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="nav-logo">COFFE<span>SINO</span></div>
+      <p data-i18n="footer_tagline">Где каждая чашка рассказывает историю</p>
+    </div>
+    <div class="footer-col">
+      <h4>Навигация</h4>
+      <ul>
+        <li onclick="document.getElementById('home').scrollIntoView({behavior:'smooth'})" data-i18n="nav_home">Главная</li>
+        <li onclick="document.getElementById('menu').scrollIntoView({behavior:'smooth'})" data-i18n="nav_menu">Меню</li>
+        <li onclick="document.getElementById('booking').scrollIntoView({behavior:'smooth'})" data-i18n="nav_booking">Бронирование</li>
+        <li onclick="document.getElementById('reviews').scrollIntoView({behavior:'smooth'})" data-i18n="nav_reviews">Отзывы</li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Контакты</h4>
+      <ul>
+        <li>📞 +7 778 728 65 67</li>
+        <li><a href="https://wa.me/77787286567" target="_blank" rel="noopener" style="color:rgba(255,255,255,.7)">💬 WhatsApp</a></li>
+        <li>📍 г. Астана</li>
+        <li>🕐 08:00 – 22:00</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p data-i18n="footer_rights">© 2025 COFFESINO. Все права защищены.</p>
+  </div>
+</footer>
+
+<!-- ─── Toast container ─────────────────────────────────────── -->
+<div id="toastContainer"></div>
+
+<!-- ─── Modal: Login ────────────────────────────────────────── -->
+<div class="modal" id="loginModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('loginModal')">✕</button>
+    <h2 data-i18n="auth_login">Войти</h2>
+    <p class="modal-sub">COFFESINO — добро пожаловать</p>
+    <form id="loginForm" class="auth-form">
+      <input type="email" id="loginEmail" data-i18n="auth_email" placeholder="Email" required>
+      <input type="password" id="loginPassword" data-i18n="auth_password" placeholder="Пароль" required>
+      <button type="submit" class="btn btn-primary" data-i18n="auth_login_btn">Войти</button>
+    </form>
+    <p class="auth-switch" data-i18n="auth_no_acc">Нет аккаунта? <a id="toRegister">Зарегистрироваться</a></p>
+  </div>
+</div>
+
+<!-- ─── Modal: Register ─────────────────────────────────────── -->
+<div class="modal" id="registerModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('registerModal')">✕</button>
+    <h2 data-i18n="auth_register">Регистрация</h2>
+    <p class="modal-sub">Создайте аккаунт COFFESINO</p>
+    <form id="registerForm" class="auth-form">
+      <input type="text"     id="regName"     data-i18n="auth_name"     placeholder="Полное имя" required>
+      <input type="email"    id="regEmail"    data-i18n="auth_email"    placeholder="Email" required>
+      <input type="tel"      id="regPhone"    data-i18n="auth_phone"    placeholder="Телефон (необязательно)">
+      <input type="password" id="regPassword" data-i18n="auth_password" placeholder="Пароль" required>
+      <button type="submit" class="btn btn-primary" data-i18n="auth_reg_btn">Создать аккаунт</button>
+    </form>
+    <p class="auth-switch"><a id="toLogin" data-i18n="auth_have_acc">Уже есть аккаунт? Войти</a></p>
+  </div>
+</div>
+
+<!-- ─── Modal: My Bookings ──────────────────────────────────── -->
+<div class="modal" id="myBookingsModal">
+  <div class="modal-box modal-box-lg">
+    <button class="modal-close" onclick="closeModal('myBookingsModal')">✕</button>
+    <h2 data-i18n="my_bookings_title">Мои Брони</h2>
+    <div id="myBookingsList" style="margin-top:20px"></div>
+  </div>
+</div>
+
+<!-- ─── Modal: Payment ──────────────────────────────────────── -->
+<div class="modal" id="paymentModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('paymentModal')">✕</button>
+    <h2 data-i18n="payment_title">Оплата через Kaspi QR</h2>
+    <input type="hidden" id="paymentBookingId">
+    <div class="kaspi-qr-wrap">
+      <img src="images/kaspi-qr.png" alt="Kaspi QR" onerror="this.style.display='none'">
+      <p class="qr-label">Kaspi QR</p>
+    </div>
+    <div class="payment-amount-display" id="paymentAmount">0 ₸</div>
+    <p class="payment-instruction" data-i18n="payment_instruction">Откройте Kaspi → Сканируйте QR → Оплатите точную сумму</p>
+    <div class="upload-area" onclick="document.getElementById('screenshotFile').click()">
+      <input type="file" id="screenshotFile" accept="image/*" onchange="this.parentElement.querySelector('label').textContent = this.files[0]?.name || ''">
+      <p>📸 <span data-i18n="payment_upload">Загрузите скриншот оплаты</span></p>
+      <label></label>
+      <p style="font-size:.78rem;color:var(--muted);margin-top:6px" data-i18n="payment_choose">Нажмите для выбора файла</p>
+    </div>
+    <div class="payment-status" id="paymentStatus"></div>
+    <button class="btn btn-primary" id="verifyBtn" onclick="verifyPayment()" style="width:100%" data-i18n="payment_verify">Подтвердить оплату</button>
+  </div>
+</div>
+
+<!-- ─── Modal: Wheel ────────────────────────────────────────── -->
+<div class="modal" id="wheelModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('wheelModal')">✕</button>
+    <div class="wheel-container">
+      <h2 data-i18n="wheel_title">🎰 Колесо Фортуны!</h2>
+      <p style="color:var(--muted);margin:8px 0 24px" data-i18n="wheel_subtitle">Ваш заказ превысил 2500₸ — Испытайте удачу!</p>
+      <canvas id="wheelCanvas" width="320" height="320"></canvas>
+      <div id="wheelResult">
+        <div id="wheelAlmost" data-i18n="wheel_almost">ТАК БЛИЗКО! Почти повезло! 😱</div>
+        <div id="wheelResultMsg"></div>
+        <p style="font-size:.88rem;color:var(--muted)" data-i18n="wheel_code">Ваш промокод:</p>
+        <div class="wheel-code-display" id="wheelCode"></div>
+        <p style="font-size:.82rem;color:var(--muted);margin-top:8px" data-i18n="wheel_valid">Действует 30 дней</p>
+        <p style="font-size:.88rem;font-weight:600;color:var(--primary);margin-top:4px" data-i18n="wheel_next">Используйте при следующем визите!</p>
+      </div>
+      <button id="wheelSpinBtn" class="btn btn-primary" style="margin-top:24px;padding:14px 48px;font-size:1.1rem" data-i18n="wheel_spin">КРУТИТЬ!</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/api.js"></script>
+<script src="js/wheel.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
