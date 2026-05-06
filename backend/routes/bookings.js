@@ -26,10 +26,19 @@ router.post('/', protect, async (req, res) => {
       }
     }
 
-    const booking = await Booking.create({
-      user: req.user._id, table: tableId, date, time,
-      duration: duration || 2, guests, discountCode, discountPercent
-    });
+// Считаем сумму: депозит столика * длительность
+const dur = duration || 2;
+let totalAmount = (table.deposit || 0) * dur;
+
+// Применяем скидку
+if (discountPercent > 0) {
+  totalAmount = totalAmount * (1 - discountPercent / 100);
+}
+
+const booking = await Booking.create({
+  user: req.user._id, table: tableId, date, time,
+  duration: dur, guests, discountCode, discountPercent, totalAmount
+});
     await booking.populate(['user', 'table']);
     res.status(201).json(booking);
   } catch (e) { res.status(500).json({ message: e.message }); }
