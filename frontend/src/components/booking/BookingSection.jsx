@@ -56,9 +56,12 @@ export default function BookingSection({ cart, onAddToCart, onChangeQty, onRemov
         })
       }
 
+      // Re-fetch booking so totalAmount includes the order items
+      const updatedBooking = await API.bookings.get(booking._id)
+
       showToast('Столик успешно забронирован!', 'success')
       onClearCart()
-      onBookingCreated(booking)
+      onBookingCreated(updatedBooking)
     } catch (err) {
       showToast(err.message, 'error')
     }
